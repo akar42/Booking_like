@@ -1,0 +1,193 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap");
+
+:root {
+
+  /**
+   * colors
+   */
+
+  --united-nations-blue: hsl(214, 56%, 58%);
+  --bright-navy-blue: hsl(214, 57%, 51%);
+  --spanish-gray: hsl(0, 0%, 60%);
+  --black-coral: hsl(225, 8%, 42%);
+  --oxford-blue: hsl(208, 97%, 12%);
+  --yale-blue: hsl(214, 72%, 33%);
+  --blue-ncs: hsl(197, 100%, 36%);
+  --gunmetal: hsl(206, 34%, 20%);
+  --gainsboro: hsl(0, 0%, 88%);
+  --cultured: hsl(0, 0%, 98%);
+  --white: hsl(0, 0%, 100%);
+  --black: hsl(0, 0%, 0%);
+  --onyx: hsl(0, 0%, 25%);
+  --jet: hsl(0, 0%, 20%);
+
+  /**
+   * typography
+   */
+
+  --ff-poppins: "Poppins", sans-serif;
+  --ff-montserrat: "Montserrat", sans-serif;
+
+  --fs-1: calc(20px + 3.5vw);
+  --fs-2: calc(18px + 1.6vw);
+  --fs-3: calc(16px + 0.45vw);
+  --fs-4: 15px;
+  --fs-5: 14px;
+  --fs-6: 13px;
+  --fs-7: 12px;
+  --fs-8: 11px;
+
+  --fw-500: 500;
+  --fw-600: 600;
+  --fw-700: 700;
+  --fw-800: 800;
+
+  /**
+   * transition
+   */
+
+  --transition: 0.25s ease-in-out;
+
+  /**
+   * spacing
+   */
+
+  --section-padding: 60px;
+
+  /**
+   * border-radius
+   */
+
+  --radius-15: 15px;
+  --radius-25: 25px;
+
+}
+
+.container { padding-inline: 15px; }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #010101;
+  font-family: "Ubuntu", sans-serif;
+  background-image: url("admin.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+a,
+img,
+span,
+input,
+label,
+button,
+ion-icon { display: block; }
+
+input { width: 100%; }
+
+ion-icon { pointer-events: none; }
+
+a,
+button {
+  all: unset;
+  cursor: pointer;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.5s ease;
+    background-color: #100f0f;
+  }
+  
+.navbar .logo i {
+    color: #0aa5ff;
+    font-size: 22px;
+ }
+  
+ .navbar .logo a {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-left: 12px;
+    text-decoration: none;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    margin-top: 90px;
+    margin-bottom: 70px;
+}
+
+
+
+ .reservations {
+    margin-top: 20px;
+    margin-left: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid white;
+    background-color: #010101d6;
+    padding: 20px;
+    color: var(--white);
+    width: 50%;
+  }
+  
+
+  .reservations h2 {
+    margin-bottom: 15px;
+    font-size: calc(15px + 1.2vw);
+    color: white;
+    text-align: start;
+    
+  }
+
+
+.button{
+  font-weight: 500;
+  padding: 12px 22px;
+  background-color: transparent;
+  color: white;
+  border-radius: 10px;
+  border: 2px solid #0aa5ff;
+  transition: 0.2s;
+  margin: 8px;
+  text-align: center; 
+  text-decoration: none;
+  margin-right: 20px;
+  
+}
+.button:hover{
+  background-color: #0aa5ff;
+  color: white;
+}
+
+
+.irl{
+    text-decoration: none;
+    color: white;
+    
+  
+}
+
+
+.active-reservation label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }

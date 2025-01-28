@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BooQueen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">
+        <i class="fa-solid fa-font-awesome"></i>
+        <a href="index.html">BooQueen</a>
+      </div>
+      <div class="menu">
+        <div class="menu-links">
+          <a id="my-profile-button" onclick="goToPersonalPage()">My profile</a>
+        </div>
+        <a href="#" id="auth-link" class="log-in">Log In</a>
+      </div>
+      <div class="menu-btn">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </nav>
+
+    <section class="hero" id="home">
+      <div class="container">
+        <h2 class="h1 hero-title">Explore the world with us</h2>
+        
+        <div class="btn-goup">
+          <button class="btn btn-primary">Learn more</button>
+          <button class="btn btn-secondary" onclick="goToSearchReservations()">Book now</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="find-hotel">
+      <div class="container">
+        <form id="find-hotel-form" class="find-hotel-form">
+          <div class="input-wrapper">
+            <label for="destination" class="input-label">Search destination</label>
+            <input type="text" name="destination" id="destination" required placeholder="Enter Destination"
+             class="input-field">
+          </div>
+          <div class="input-wrapper">
+            <label for="people" class="input-label">Number of people</label>
+            <input type="text" name="people" id="people" required placeholder="No.of people"
+             class="input-field">
+          </div>
+          <div class="input-wrapper">
+            <label for="checkin" class="input-label">Checkin Date</label>
+            <input type="date" name="checkin" id="checkin" required class="input-field">
+          </div>
+          <div class="input-wrapper">
+            <label for="checkout" class="input-label">Checkout Date</label>
+            <input type="date" name="checkout" id="checkout" required class="input-field">
+          </div>
+          <div class="input-wrapper">
+            <button type="submit" class="btn btn-sumbit" onclick="goToHiddenSection()">Search</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="find-reservations" id="find-reservations" style="display: none">
+      <div class="container">
+        <h2 class="available-h2">Available Reservations:</h2>
+        <div id="reservations-list"></div>
+      </div>
+    </section>
+  </body>
+</html>
