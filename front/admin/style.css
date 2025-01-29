@@ -80,6 +80,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    height: 90vh;
 }
 
 a,
@@ -135,10 +136,18 @@ button {
 }
 
 
+.show-res-buttons{
+  display: flex;
+  flex-direction: row;
+  
+}
+.reservation-view{
+  width: 450px;
+}
 
- .reservations {
+ .reservation {
     margin-top: 20px;
-    margin-left: 40px;
+    
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid white;
@@ -149,7 +158,7 @@ button {
   }
   
 
-  .reservations h2 {
+  .reservation h2 {
     margin-bottom: 15px;
     font-size: calc(15px + 1.2vw);
     color: white;
@@ -176,7 +185,9 @@ button {
   background-color: #0aa5ff;
   color: white;
 }
-
+.reservation p, .button{
+  margin-left: 40px;
+}
 
 .irl{
     text-decoration: none;
