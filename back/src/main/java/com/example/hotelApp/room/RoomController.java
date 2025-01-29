@@ -52,7 +52,7 @@ public class RoomController {
         return deleteRoomService.execute(id);
     }
 
-    @GetMapping("/rooms/filter")
+    @PostMapping("/rooms/filter")
     public ResponseEntity<List<Room>> getAvailableRooms(@RequestBody DateFilterDTO dateFilterDTO) {
         return getAvailableRoomsInTimePeriodService.execute(dateFilterDTO);
     }

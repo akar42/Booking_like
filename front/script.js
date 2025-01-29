@@ -1,129 +1,26 @@
+// ========== Скрытие/показ navbar при скролле ==========
 const navBar = document.querySelector(".navbar");
 let prevScrollPos = window.scrollY;
 
 window.addEventListener("scroll", function () {
   let currScrollPos = window.scrollY;
-
   if (currScrollPos > prevScrollPos) {
     navBar.style.transform = `translateY(-105%)`;
   } else {
     navBar.style.transform = `translateY(0%)`;
   }
-
   prevScrollPos = currScrollPos;
 });
 
-
-const reservations = [
-  {
-    destination: "New York",
-    checkIn: "2025-02-15",
-    checkOut: "2025-02-20",
-    guests: 4,
-    roomId: "123",
-    totalCost: "$500",
-  },
-  {
-    destination: "Los Angeles",
-    checkIn: "2025-02-10",
-    checkOut: "2025-02-15",
-    guests: 2,
-    roomId: "124",
-    totalCost: "$300",
-  },
-  {
-    destination: "New York",
-    checkIn: "2025-03-05",
-    checkOut: "2025-03-10",
-    guests: 5,
-    roomId: "125",
-    totalCost: "$400",
-  },
-  {
-    destination: "New York",
-    checkIn: "2025-03-05",
-    checkOut: "2025-03-10",
-    guests: 3,
-    roomId: "125",
-    totalCost: "$500",
-  },
-];
-
-document.getElementById("find-hotel-form").addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const findReservationsSection = document.getElementById("find-reservations");
-  findReservationsSection.classList.add("show");
-});
-
-document.getElementById("find-hotel-form").addEventListener("submit", function(event){
-  event.preventDefault();
-
-  const destination = document.getElementById("destination").value.trim().toLowerCase();
-  const people = parseInt(document.getElementById("people").value, 10);
-  const checkin = new Date(document.getElementById("checkin").value);
-  const checkout = new Date(document.getElementById("checkout").value);
-  
-  const filteredReservations = reservations.filter((reservation) => {
-    const reservationCheckIn = new Date(reservation.checkIn);
-    const reservationCheckOut = new Date(reservation.checkOut);
-
-    return (
-      reservation.destination.toLowerCase().includes(destination) &&
-      reservation.guests >= people &&
-      checkin >= reservationCheckIn &&
-      checkout <= reservationCheckOut
-    );
-  });
-
-    const reservationsList = document.getElementById("reservations-list");
-    reservationsList.innerHTML = "";
-
-    if (filteredReservations.length > 0) {
-      filteredReservations.forEach((reservation) => {
-        const reservationElement = document.createElement("div");
-        reservationElement.classList.add("reservation-item");
-  
-        reservationElement.innerHTML = `
-          <div>
-            <p><strong>Destination:</strong> ${reservation.destination}</p>
-            <p><strong>Check-in:</strong> ${reservation.checkIn}</p>
-            <p><strong>Check-out:</strong> ${reservation.checkOut}</p>
-            <p><strong>Guests:</strong> ${reservation.guests}</p>
-            <p><strong>Total Cost:</strong> ${reservation.totalCost}</p>
-          </div>
-          <div class = "choose-reservation">
-            <button class="reserve-btn" id ="reserve-it-btn">Reserve it</button>
-            <div class="stars"></div>
-          </div>
-        `;
-  
-        reservationsList.appendChild(reservationElement);
-      });
-    } else {
-      reservationsList.innerHTML = "<p>No matching reservations found.</p>";
-    }
-
-    document.getElementById("find-reservations").style.display = "block";
-
-    const findReservationsSection = document.getElementById("find-reservations");
-    findReservationsSection.classList.add("show");
-
-    setTimeout(() => {
-      findReservationsSection.scrollIntoView({ behavior: "smooth" });
-    }, 110);
-});
-
+// ========== Переход к форме поиска (скролл) ==========
 function goToSearchReservations() {
   const findReservationsSection = document.getElementById("find-hotel-form");
-
   setTimeout(() => {
     findReservationsSection.scrollIntoView({ behavior: "smooth" });
   }, 110);
 }
 
-
-
+// ========== Работа с куками (логин, роли) ==========
 function setCookie(name, value, days) {
   const date = new Date();
   date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
@@ -172,19 +69,20 @@ function updateAuthButton() {
 
 document.addEventListener("DOMContentLoaded", updateAuthButton);
 
+// ========== Повторный код со скрытием navbar (если нужно) ==========
 window.addEventListener("scroll", function () {
   let currScrollPos = window.scrollY;
-
+  const navBar1 = document.querySelector(".navbar");
   if (currScrollPos > prevScrollPos) {
     navBar1.style.transform = `translateY(-105%)`;
   } else {
     navBar1.style.transform = `translateY(0%)`;
   }
-
   prevScrollPos = currScrollPos;
 });
 
-function goToPersonalPage(){
+// ========== Переход на личную страницу (в зависимости от роли) ==========
+function goToPersonalPage() {
   const userRole = getCookie("userRole");
   const adminRole = getCookie("adminRole");
 
@@ -197,25 +95,153 @@ function goToPersonalPage(){
     window.location.href = "login.html";
   }
 }
-document.getElementById("my-profile-button").addEventListener("click", goToPersonalPage);
+document
+  .getElementById("my-profile-button")
+  .addEventListener("click", goToPersonalPage);
 
-function getCurrentUserId(){
+function getCurrentUserId() {
   return getCookie("userId");
 }
 
-function checkLogin(){
-  const currentUserId = getCurrentUserId();
-  return currentUserId != null;
+function checkLogin() {
+  // const currentUserId = getCurrentUserId();
+  // const jwt = getCookie()
+  return getCookie("isLoggedIn");
 }
 
-function acceptReservation(){
-  const acceptButton = document.getElementsById("reserve-it-btn");
+// ========== Обработка формы поиска и запрос к серверу ==========
+document
+  .getElementById("find-hotel-form")
+  .addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    // const destination = document.getElementById("destination").value.trim();
+    const people = document.getElementById("people").value.trim();
+    const checkinValue = document.getElementById("checkin").value;
+    const checkoutValue = document.getElementById("checkout").value;
+
+    const reservationsList = document.getElementById("reservations-list");
+    reservationsList.innerHTML = "";
+
+    // Логика заполнения дат:
+    // 1. Если ОБА поля дат пустые => GET /api/rooms
+    // 2. Если ОБА поля дат заполнены => POST /api/rooms/filter
+    // 3. Если одно пустое, другое нет => сообщение об ошибке и выходим
+
+    if (!checkinValue && !checkoutValue && !people) {
+      // Оба поля пусты => GET
+      try {
+        const response = await fetch("http://localhost:8080/api/rooms");
+        if (!response.ok) {
+          throw new Error(`Ошибка при GET-запросе: ${response.status}`);
+        }
+        const rooms = await response.json();
+        renderRooms(rooms);
+      } catch (err) {
+        console.error(err);
+        reservationsList.innerHTML =
+          "<p>Error while loading all rooms</p>";
+      }
+    } else if ((checkinValue && checkoutValue) || people) {
+      // Оба поля заполнены => POST
+      try {
+        const response = await fetch("http://localhost:8080/api/rooms/filter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            requiredGuests: people,
+            startDate: checkinValue,
+            endDate: checkoutValue,
+            // Если нужно также учитывать destination/people => добавьте:
+            // destination: destination,
+            // people: people,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка при POST-запросе: ${response.status}`);
+        }
+        const rooms = await response.json();
+        renderRooms(rooms);
+      } catch (err) {
+        console.error(err);
+        reservationsList.innerHTML =
+          "<p>Error while loading filtered rooms</p>";
+      }
+    } else {
+      // Одно поле заполнено, второе пустое => показываем ошибку
+      alert("Please either fill in both date fields or leave them blank");
+      return;
+    }
+
+    // Показать секцию и проскроллить
+    const findReservationsSection = document.getElementById("find-reservations");
+    findReservationsSection.style.display = "block";
+    findReservationsSection.classList.add("show");
+
+    setTimeout(() => {
+      findReservationsSection.scrollIntoView({ behavior: "smooth" });
+    }, 110);
+  });
+
+// ========== Функция отображения комнат на экране ==========
+function renderRooms(roomsArray) {
+  const reservationsList = document.getElementById("reservations-list");
+
+  if (!roomsArray || roomsArray.length === 0) {
+    reservationsList.innerHTML = "<p>No matching reservations found.</p>";
+    return;
+  }
+
+  roomsArray.forEach((room) => {
+    const reservationElement = document.createElement("div");
+    reservationElement.classList.add("reservation-item");
+
+    reservationElement.innerHTML = `
+      <div>
+        <p><strong>Room ID:</strong> ${room.roomId || "-"}</p>
+        <p><strong>Room Number:</strong> ${room.roomNumber || "-"}</p>
+        <p><strong>Type:</strong> ${room.roomType || "-"}</p>
+        <p><strong>Price:</strong> ${room.price || "-"}</p>
+        <p><strong>Guests:</strong> ${room.guestNumber || "-"}</p>
+        <p><strong>Floor:</strong> ${room.floorNumber || "-"}</p>
+        <p><strong>Facilities:</strong> ${room.facilities || "-"}</p>
+      </div>
+      <div class="choose-reservation">
+        <button class="reserve-btn" id="reserve-it-btn">Reserve it</button>
+        <div class="stars"></div>
+      </div>
+    `;
+
+    // Кнопка "Reserve it"
+    const reserveBtn = reservationElement.querySelector("#reserve-it-btn");
+    reserveBtn.addEventListener("click", () => {
+      const userIsLoggedIn = checkLogin();
+      if (!userIsLoggedIn) {
+        alert("Please log in to proceed with the reservation");
+        window.location.href = "login.html";
+      } else {
+        
+        // Логика бронирования
+        console.log("Reserving room:", room);
+      }
+    });
+
+    reservationsList.appendChild(reservationElement);
+  });
+}
+
+function acceptReservation() {
+  const acceptButton = document.getElementById("reserve-it-btn");
+  if (!acceptButton) return;
   acceptButton.addEventListener("click", (event) => {
     const checkUser = checkLogin();
-    if(checkUser){
-      
-    }else{
-      alert("Please log in to proces reservation");
+    if (!checkUser) {
+      alert("Please log in to proceed with reservation");
+    } else {
+      console.log("Reservation accepted");
     }
-  })
+  });
 }

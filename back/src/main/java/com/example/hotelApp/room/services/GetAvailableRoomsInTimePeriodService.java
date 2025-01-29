@@ -21,11 +21,28 @@ public class GetAvailableRoomsInTimePeriodService implements Query<DateFilterDTO
     @Override
     public ResponseEntity<List<Room>> execute(DateFilterDTO input) {
         List<Room> rooms = roomRepository.findAll();
+        List<Room> filteredRooms;
 
-        List<Room> filteredRooms = rooms.stream()
+        if (input.getRequiredGuests() != null && (input.getStartDate() == null || input.getEndDate() == null)) {
+            // Only filter on guests
+            filteredRooms = rooms.stream()
+                    .filter(room -> room.getGuestNumber() >= input.getRequiredGuests())
+                    .toList();
+
+            return ResponseEntity.status(HttpStatus.OK).body(filteredRooms);
+        }
+
+        filteredRooms = rooms.stream()
                 .filter(room -> room.getReservations().stream()
-                        .allMatch(reservation -> reservation.getEndDate().isBefore(input.getStartDate()) || reservation.getStartDate().isAfter(input.getEndDate())))
+                        .allMatch(reservation -> reservation.getEndDate().isBefore(input.getStartDate())
+                                || reservation.getStartDate().isAfter(input.getEndDate())))
                 .toList();
+
+        if (input.getRequiredGuests() != null) {
+            filteredRooms = filteredRooms.stream()
+                    .filter(room -> room.getGuestNumber() >= input.getRequiredGuests())
+                    .toList();
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(filteredRooms);
     }

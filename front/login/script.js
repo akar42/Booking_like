@@ -60,38 +60,82 @@ const adminData = [
     return null;
   }
 
-  function handleLogin(event) {
+  async function handleLogin(event) {
     event.preventDefault();
     const emailInput = document.querySelector(".sign-in input[type='email']").value;
     const passwordInput = document.querySelector(".sign-in input[type='password']").value;
-  
+
     console.log("Email:", emailInput);
-    console.log("Password:", passwordInput);      
-  
-    const isAdmin = adminData.find(
-        (admin) => admin.login === emailInput && admin.password === passwordInput
-      );
-  
-      if (isAdmin && isAdmin.role === "admin") {
+    console.log("Password:", passwordInput);
+
+    try {
+        // Send login request
+        const response = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                login: emailInput,
+                password: passwordInput
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Login failed: ${response.statusText}`);
+        }
+
+        // Parse response and extract token
+        const data = await response.json();
+        const token = data.token;
+
+        console.log("JWT Token:", token);
+
+        // Decode JWT to extract user login and role
+        const decodedToken = parseJwt(token);
+
+        console.log("Decoded Token:", decodedToken);
+
+        // Extract user info
+        const userLogin = decodedToken.sub;  // `sub` typically contains the username
+        const userRole = decodedToken.role;  // Custom claim for user role
+
+        // Store user info in cookies
         setCookie("isLoggedIn", true, 1);
-        setCookie("adminRole", isAdmin.role, 1); 
-        setCookie("adminId", isAdmin.adminId, 1);
-        window.location.href = "admin_active_reservations.html";
-        return;
-      } 
+        setCookie("authToken", token, 1); // Store JWT for future API requests
+        setCookie("userLogin", userLogin, 1);
+        setCookie("userRole", userRole, 1);
 
+        // Redirect based on role
+        if (userRole === "admin") {
+            window.location.href = "admin_active_reservations.html";
+        } else {
+            window.location.href = "my_profile.html";
+        }
 
-    const isUser = userData.find(
-       (user) => user.login === emailInput && user.password === passwordInput
-    );
+    } catch (error) {
+        console.error("Login Error:", error);
+    }
+}
 
-      if(isUser && isUser.role === "user"){
-        setCookie("isLoggedIn", true, 1);
-        setCookie("userRole", isUser.role, 1);
-        setCookie("userId", isUser.userId, 1);
-        window.location.href = "my_profile.html";
-        return;
-      }
-  }
+/**
+ * Function to decode JWT token.
+ */
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1]; // Get payload (second part of JWT)
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (error) {
+        console.error("Error decoding JWT:", error);
+        return null;
+    }
+}
   
   document.querySelector(".sign-in form").addEventListener("submit", handleLogin);
