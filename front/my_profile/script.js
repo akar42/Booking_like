@@ -76,97 +76,102 @@ function getCookie(name) {
   return null;
 }
 
-function getCurrentUserId(){
-  return getCookie("userId");
+document.addEventListener("DOMContentLoaded", fetchUserData);
+
+async function fetchUserData() {
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+        alert("You must log in to access this page.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8080/api/user/logged", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${authToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error - GET request: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        populateUserData(userData);
+        populateReservations(userData.reservations);
+    } catch (err) {
+        console.error("Error fetching user data:", err);
+    }
 }
 
-function getCurrentUser(){
-  const currentUserId = getCurrentUserId();
-  return personalInfo.find((user) => user.userId === currentUserId);
+// === Заполнение личных данных ===
+function populateUserData(user) {
+    document.getElementById("user-id").textContent = user.userId;
+    document.getElementById("name").textContent = user.name;
+    document.getElementById("surname").textContent = user.surname;
+    document.getElementById("dob").textContent = user.dateOfBirth;
+    document.getElementById("login").textContent = user.login;
+    document.getElementById("phone").textContent = user.telephoneNumber;
+    document.getElementById("card-number").textContent = user.cardNumber;
+    document.getElementById("card-expiry").textContent = user.cardExpDate;
+    document.getElementById("document-number").textContent = user.documentNumber;
 }
 
-function filterUserId(){
-  const currentUserId = getCurrentUserId();
-  if (!currentUserId) {
-    alert("You must log in to see your reservations.");
-    return [];
-  }
-
-  return reservations.filter((reservation) => reservation.userId === currentUserId);
-}
-
-
+// === Отображение бронирований ===
 function populateReservations(reservations) {
-    const form = document.getElementById("reservations-form"); 
-    form.innerHTML = ""; 
+    const form = document.getElementById("reservations-form");
+    form.innerHTML = "";
 
-    const filteredReservations = filterUserId();
-    
-    filteredReservations.forEach((reservation) => {
-      const reservationElement = document.createElement("div");
-      reservationElement.classList.add("active-reservation");
-  
-      reservationElement.innerHTML = `
-        <div class="active-reservation-info">
-          <label for="reservation" class="reservation-label">
-            <strong>Reservation Id:</strong> <span>${reservation.reservationId}</span>
-          </label>
-          <p><strong>Check-in:</strong> <span>${reservation.checkIn}</span></p>
-          <p><strong>Check-out:</strong> <span>${reservation.checkOut}</span></p>
-          <p><strong>Guests:</strong> <span>${reservation.guests}</span></p>
-          <p><strong>Status:</strong> <span>${reservation.status}</span></p>
-        </div>
-        <div class="active-reservation-button">
-          <a class="button-to-kill">Creeps or bluds?</a>
-        </div>
-      `;
-  
-      const button = reservationElement.querySelector(".button-to-kill");
-      button.addEventListener("click", () => {
-        storeReservationData(reservation);
-        window.location.href = "reservation.html";
-      });
-  
-      form.appendChild(reservationElement);
+    if (!reservations || reservations.length === 0) {
+        form.innerHTML = "<p>No active reservations found.</p>";
+        return;
+    }
+
+    reservations.forEach(reservation => {
+        const reservationElement = document.createElement("div");
+        reservationElement.classList.add("active-reservation");
+
+        reservationElement.innerHTML = `
+            <div class="active-reservation-info">
+                <label class="reservation-label">
+                    <strong>Reservation Id:</strong> <span>${reservation.reservationId}</span>
+                </label>
+                <p><strong>Check-in:</strong> <span>${reservation.startDate}</span></p>
+                <p><strong>Check-out:</strong> <span>${reservation.endDate}</span></p>
+                <p><strong>Total Cost:</strong> <span>${reservation.totalCost} $</span></p>
+                <p><strong>Status:</strong> <span>${reservation.status}</span></p>
+            </div>
+            <div class="active-reservation-button">
+                <a class="btn-s button-to-details">View Details</a>
+            </div>
+        `;
+
+        const button = reservationElement.querySelector(".button-to-details");
+        button.addEventListener("click", () => {
+            storeReservationData(reservation);
+            window.location.href = "reservation.html";
+        });
+
+        form.appendChild(reservationElement);
     });
+}
 
-  }     
-
-  function storeReservationData(reservation) {
-    const currentUser = getCurrentUser();
-    const combinedData = {
-        reservation: reservation,
-        user: currentUser,
-    };
-  
-    
-    document.cookie = `selectedReservation=${encodeURIComponent(
-        JSON.stringify(combinedData)
-      )}; path=/`;
-    
+// === Сохранение бронирования в cookie ===
+function storeReservationData(reservation) {
+  if (!reservation) {
+      console.error("Attempted to store empty reservation.");
+      return;
   }
 
-function populatePersonalInfo() {
-    const currentUser = getCurrentUser();
-    document.getElementById("user-id").textContent = currentUser.userId;
-    document.getElementById("name").textContent = currentUser.name;
-    document.getElementById("surname").textContent = currentUser.surname;
-    document.getElementById("dob").textContent = currentUser.dateOfBirth;
-    document.getElementById("login").textContent = currentUser.login;
-    document.getElementById("phone").textContent = currentUser.phone;
-    document.getElementById("card-number").textContent = currentUser.cardNumber;
-    document.getElementById("card-expiry").textContent = currentUser.cardExpiry;
-    document.getElementById("document-number").textContent = currentUser.documentNumber;
+  // Добавим логирование, чтобы проверить передаваемые данные
+  console.log("Storing reservation:", reservation);
+
+  document.cookie = `selectedReservation=${encodeURIComponent(
+      JSON.stringify(reservation)
+  )}; path=/`;
+
+  window.location.href = "reservation.html";
 }
-
-
-function checkUserAccess() {
-  const isLoggedIn = getCookie("isLoggedIn");
-  const userRole = getCookie("userRole");
-}
-checkUserAccess();
-
-document.addEventListener("DOMContentLoaded", () => {
-  populateReservations();
-  populatePersonalInfo();
-});

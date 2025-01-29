@@ -54,9 +54,11 @@ function updateAuthButton() {
     authLink.classList.add("log-out");
 
     authLink.addEventListener("click", () => {
+      // deleteCookie("adminRole");
       deleteCookie("isLoggedIn");
-      deleteCookie("adminRole");
       deleteCookie("userRole");
+      deleteCookie("userLogin");
+      deleteCookie("authToken");
       updateAuthButton();
     });
   } else {
@@ -67,7 +69,40 @@ function updateAuthButton() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", updateAuthButton);
+document.addEventListener("DOMContentLoaded", () => {
+  const token = localStorage.getItem("authToken");
+  const userRole = localStorage.getItem("userRole");
+  updateAuthButton();
+
+  // if (token && userRole) {
+  //     console.log("User is already logged in");
+  // }
+});
+
+function updateAuthButton() {
+  const authLink = document.getElementById("auth-link");
+  const token = localStorage.getItem("authToken");
+
+  if (token) {
+      authLink.textContent = "Log Out";
+      authLink.setAttribute("href", "#");
+      authLink.classList.remove("log-in");
+      authLink.classList.add("log-out");
+
+      authLink.addEventListener("click", () => {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userLogin");
+          localStorage.removeItem("userRole");
+          window.location.href = "index.html";
+      });
+  } else {
+      authLink.textContent = "Log In";
+      authLink.setAttribute("href", "login.html");
+      authLink.classList.remove("log-out");
+      authLink.classList.add("log-in");
+  }
+}
+
 
 // ========== Повторный код со скрытием navbar (если нужно) ==========
 window.addEventListener("scroll", function () {
@@ -83,13 +118,12 @@ window.addEventListener("scroll", function () {
 
 // ========== Переход на личную страницу (в зависимости от роли) ==========
 function goToPersonalPage() {
-  const userRole = getCookie("userRole");
-  const adminRole = getCookie("adminRole");
+  const role = localStorage.getItem("userRole");
 
-  if (adminRole === "admin") {
+  if (role === "ROLE_ADMIN") {
     window.location.href = "admin_active_reservations.html";
-  } else if (userRole === "user") {
-    window.location.href = "my-profile.html";
+  } else if (role === "ROLE_USER") {
+    window.location.href = "my_profile.html";
   } else {
     alert("You must log in to access this page.");
     window.location.href = "login.html";
@@ -133,7 +167,7 @@ document
       try {
         const response = await fetch("http://localhost:8080/api/rooms");
         if (!response.ok) {
-          throw new Error(`Ошибка при GET-запросе: ${response.status}`);
+          throw new Error(`Error - GET-request: ${response.status}`);
         }
         const rooms = await response.json();
         renderRooms(rooms);
@@ -161,10 +195,10 @@ document
         });
 
         if (!response.ok) {
-          throw new Error(`Ошибка при POST-запросе: ${response.status}`);
+          throw new Error(`Error - POST-request: ${response.status}`);
         }
         const rooms = await response.json();
-        renderRooms(rooms);
+        renderRooms(rooms, checkinValue, checkoutValue);
       } catch (err) {
         console.error(err);
         reservationsList.innerHTML =
@@ -187,7 +221,7 @@ document
   });
 
 // ========== Функция отображения комнат на экране ==========
-function renderRooms(roomsArray) {
+function renderRooms(roomsArray, checkinValue, checkoutValue) {
   const reservationsList = document.getElementById("reservations-list");
 
   if (!roomsArray || roomsArray.length === 0) {
@@ -217,20 +251,84 @@ function renderRooms(roomsArray) {
 
     // Кнопка "Reserve it"
     const reserveBtn = reservationElement.querySelector("#reserve-it-btn");
-    reserveBtn.addEventListener("click", () => {
-      const userIsLoggedIn = checkLogin();
-      if (!userIsLoggedIn) {
-        alert("Please log in to proceed with the reservation");
-        window.location.href = "login.html";
-      } else {
-        
-        // Логика бронирования
-        console.log("Reserving room:", room);
+    reserveBtn.addEventListener("click", async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("You must log in to reserve a room.");
+        return;
+      }
+    
+      console.log("Reserving room:", room);
+      // const authToken = getCookie("authToken");
+    
+      let userInfo = {};
+      try {
+        const response = await fetch("http://localhost:8080/api/user/logged", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Error - GET request: ${response.status}`);
+        }
+    
+        userInfo = await response.json();
+      } catch (err) {
+        console.error(err);
+        reservationsList.innerHTML = "<p>Error while loading logged user info</p>";
+        return;
+      }
+    
+      const totalCost = room.price * getDaysBetweenDates(checkinValue, checkoutValue);
+    
+      try {
+        const response = await fetch("http://localhost:8080/api/reservation", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ // Convert object to JSON string
+            startDate: checkinValue,
+            endDate: checkoutValue,
+            totalCost: totalCost,
+            status: "Waiting for confirmation",
+            userId: userInfo.userId,
+            rooms: [{ roomId: room.roomId }]
+          })
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Error - POST request: ${response.status}`);
+        }
+    
+        console.log("Reservation successful!");
+      } catch (err) {
+        console.error(err);
+        reservationsList.innerHTML = "<p>Error while creating new reservation</p>";
       }
     });
+    
 
     reservationsList.appendChild(reservationElement);
   });
+}
+
+function getDaysBetweenDates(startDate, endDate) {
+  // Convert the date strings to Date objects
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Calculate the difference in milliseconds
+  const diffInMs = end - start;
+
+  // Convert milliseconds to days
+  const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+  return diffInDays;
 }
 
 function acceptReservation() {
