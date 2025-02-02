@@ -94,7 +94,7 @@ const adminData = [
         localStorage.setItem("userRole", decodedToken.role);
 
         // Перенаправление на личный кабинет
-        if (decodedToken.role === "admin") {
+        if (decodedToken.role === "ROLE_ADMIN") {
             window.location.href = "admin_active_reservations.html";
         } else {
             window.location.href = "my_profile.html";

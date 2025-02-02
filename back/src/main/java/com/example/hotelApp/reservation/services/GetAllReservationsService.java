@@ -20,6 +20,10 @@ public class GetAllReservationsService implements Query<Void, List<Reservation>>
     public ResponseEntity<List<Reservation>> execute(Void input) {
         List<Reservation> reservations = reservationRepository.findAll();
 
+        reservations = reservations.stream()
+                .filter(reservation -> reservation.getAdminId() == null)
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body(reservations);
     }
 }

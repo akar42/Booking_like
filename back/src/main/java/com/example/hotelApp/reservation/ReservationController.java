@@ -19,6 +19,7 @@ public class ReservationController {
     private final GetAllReservationsService getAllReservationsService;
     private final UpdateReservationService updateReservationService;
     private final DeleteReservationService deleteReservationService;
+    private final GetAdminReservationsService getAdminReservationsService;
 
     @PostMapping("/reservation")
     @PreAuthorize("hasRole('USER')")
@@ -36,6 +37,12 @@ public class ReservationController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Reservation>> getAllReservations() {
         return getAllReservationsService.execute(null);
+    }
+
+    @GetMapping("/reservations/admin/{adminId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Reservation>> getAdminReservations(@PathVariable Integer adminId) {
+        return getAdminReservationsService.execute(adminId);
     }
 
     @PutMapping("/reservation/{id}")

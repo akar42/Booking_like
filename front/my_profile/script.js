@@ -1,69 +1,4 @@
-const reservations = [
-    {
-      reservationId: "TYH123",
-      checkIn: "January 15, 2025",
-      checkOut: "January 20, 2025",
-      guests: 4,
-      status: "Confirmed",
-      roomId: "123",
-      totalCost: "$500",
-      startDate: "2025-01-15",
-      endDate: "2025-01-20",
-      userId: "12345"
-    },
-    {
-        reservationId: "TYH123",
-        checkIn: "January 20, 2025",
-        checkOut: "January 20, 2025",
-        guests: 4,
-        status: "Confirmed",
-        roomId: "123",
-        totalCost: "$500",
-        startDate: "2025-01-20",
-        endDate: "2025-01-25",
-        userId: "123"
-      },
-      {
-        reservationId: "TYH123",
-        checkIn: "January 15, 2025",
-        checkOut: "January 20, 2025",
-        guests: 4,
-        status: "Confirmed",
-        roomId: "123",
-        totalCost: "$500",
-        startDate: "2025-01-15",
-        endDate: "2025-01-20",
-        userId: "12345"
-      },
-    // ... other reservations
-  ];
-
-
-const personalInfo = [
-{
-  userId: "12345",
-  name: "John",
-  surname: "Doe",
-  dateOfBirth: "1990-01-01",
-  login: "johndoe",
-  phone: "+123456789",
-  cardNumber: "1234-5678-9012-3456",
-  cardExpiry: "12/25",
-  documentNumber: "ABC123456"
-},
-{
-  userId: "123",
-  name: "pididi",
-  surname: "pididid",
-  dateOfBirth: "1990-01-01",
-  login: "pididi",
-  phone: "+123456789",
-  cardNumber: "1234-5678-9012-3456",
-  cardExpiry: "12/25",
-  documentNumber: "ABC123456"
-},
-] 
-
+let originalUserData = null; // Переменная для хранения данных пользователя перед редактированием
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
@@ -76,7 +11,12 @@ function getCookie(name) {
   return null;
 }
 
-document.addEventListener("DOMContentLoaded", fetchUserData);
+document.addEventListener("DOMContentLoaded", () => {
+  fetchUserData();
+
+  // Добавляем обработчик для кнопки редактирования после загрузки данных
+  document.querySelector(".edit-button").addEventListener("click", enableEditMode);
+});
 
 async function fetchUserData() {
     const authToken = localStorage.getItem("authToken");
@@ -100,6 +40,7 @@ async function fetchUserData() {
         }
 
         const userData = await response.json();
+
         populateUserData(userData);
         populateReservations(userData.reservations);
     } catch (err) {
@@ -109,6 +50,8 @@ async function fetchUserData() {
 
 // === Заполнение личных данных ===
 function populateUserData(user) {
+    originalUserData = user;
+
     document.getElementById("user-id").textContent = user.userId;
     document.getElementById("name").textContent = user.name;
     document.getElementById("surname").textContent = user.surname;
@@ -118,6 +61,107 @@ function populateUserData(user) {
     document.getElementById("card-number").textContent = user.cardNumber;
     document.getElementById("card-expiry").textContent = user.cardExpDate;
     document.getElementById("document-number").textContent = user.documentNumber;
+
+    // Привязываем обработчик к кнопке "Редактировать" (если её нет, создаём её)
+    let editButton = document.querySelector(".edit-button");
+    if (!editButton) {
+        editButton = document.createElement("button");
+        editButton.classList.add("edit-button");
+        editButton.textContent = "Edit";
+        editButton.addEventListener("click", enableEditMode);
+
+        document.querySelector(".profile-info").appendChild(editButton);
+    }
+}
+
+function enableEditMode() {
+  const profileInfo = document.querySelector(".profile-info");
+
+  if (!originalUserData) {
+      console.error("No original user data found.");
+      return;
+  }
+
+  profileInfo.innerHTML = `
+      <h2>Edit Personal Information</h2>
+      <p><strong>User ID:</strong> <span>${originalUserData.userId}</span></p>
+      <p><strong>Login:</strong> <span>${originalUserData.login}</span></p>
+      <p><strong>Name:</strong> <input type="text" id="edit-name" value="${originalUserData.name || ""}" required></p>
+      <p><strong>Surname:</strong> <input type="text" id="edit-surname" value="${originalUserData.surname || ""}"></p>
+      <p><strong>Date of Birth:</strong> 
+          <input type="date" id="edit-dob" value="${originalUserData.dateOfBirth || ""}">
+      </p>
+      <p><strong>Phone:</strong> <input type="text" id="edit-phone" value="${originalUserData.telephoneNumber || ""}"></p>
+      <p><strong>Card Number:</strong> <input type="text" id="edit-card-number" value="${originalUserData.cardNumber || ""}"></p>
+      <p><strong>Card Expiry:</strong> <input type="text" id="edit-card-expiry" value="${originalUserData.cardExpDate || ""}"></p>
+      <p><strong>Document Number:</strong> <input type="text" id="edit-document-number" value="${originalUserData.documentNumber || ""}"></p>
+      <button class="save-button">Save Changes</button>
+      <button class="cancel-button">Cancel</button>
+      <p id="error-message" style="color: red; display: none;">Name cannot be empty.</p>
+  `;
+
+  document.querySelector(".save-button").addEventListener("click", validateAndSave);
+  document.querySelector(".cancel-button").addEventListener("click", restoreProfileInfo);
+}
+
+// === Проверка перед сохранением ===
+function validateAndSave() {
+    const nameInput = document.getElementById("edit-name").value.trim();
+    const errorMessage = document.getElementById("error-message");
+
+    if (!nameInput) {
+        errorMessage.style.display = "block"; // Показываем ошибку
+        return;
+    }
+
+    saveChanges(); // Если имя не пустое, сохраняем данные
+}
+
+// === Сохранение изменений ===
+async function saveChanges() {
+  const authToken = localStorage.getItem("authToken");
+
+  const updatedData = {
+      userId: originalUserData.userId,
+      login: originalUserData.login,
+      password: originalUserData.password,
+      reservations: originalUserData.reservations,
+      name: document.getElementById("edit-name").value.trim() || null,
+      surname: document.getElementById("edit-surname").value.trim() || null,
+      dateOfBirth: document.getElementById("edit-dob").value || null,
+      telephoneNumber: document.getElementById("edit-phone").value.trim() || null,
+      cardNumber: document.getElementById("edit-card-number").value.trim() || null,
+      cardExpDate: document.getElementById("edit-card-expiry").value.trim() || null,
+      documentNumber: document.getElementById("edit-document-number").value.trim() || null,
+  };
+
+  console.log(updatedData);
+
+  try {
+      const response = await fetch("http://localhost:8080/api/user/logged", {
+          method: "PUT",
+          headers: {
+              "Authorization": `Bearer ${authToken}`,
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(updatedData)
+      });
+
+      if (!response.ok) {
+          throw new Error(`Error - PUT request: ${response.status}`);
+      }
+
+      alert("Profile updated successfully!");
+      restoreProfileInfo();
+  } catch (err) {
+      console.error("Error updating user data:", err);
+      alert("Failed to update profile. Try again later.");
+  }
+}
+
+// === Восстановление исходных данных ===
+function restoreProfileInfo() {
+  window.location.href = "my_profile.html";
 }
 
 // === Отображение бронирований ===
