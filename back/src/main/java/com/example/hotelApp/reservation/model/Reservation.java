@@ -1,9 +1,6 @@
 package com.example.hotelApp.reservation.model;
 
-import com.example.hotelApp.admin.model.Admin;
 import com.example.hotelApp.room.model.Room;
-import com.example.hotelApp.user.model.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -14,8 +11,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Reservation")
-@Getter
-@Setter
 @Data
 public class Reservation {
 
