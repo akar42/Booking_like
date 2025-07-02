@@ -197,18 +197,19 @@ public class ReservationControllerTest {
         
         UpdateReservationCommand updateCommand = new UpdateReservationCommand(reservationId, updatedReservation);
         
-        when(updateReservationService.execute(updateCommand))
-                .thenReturn(ResponseEntity.ok(updatedReservation));
+        when(updateReservationService.execute(any(UpdateReservationCommand.class)))
+            .thenReturn(ResponseEntity.ok(updatedReservation));
+
         
         mockMvc.perform(put("/api/reservation/{id}", reservationId)
-				.with(csrf())
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedReservation)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reservationId").value(reservationId))
                 .andExpect(jsonPath("$.status").value("UPDATED"))
                 .andExpect(jsonPath("$.totalCost").value(550.0));
-    }
+        }
     
     @Test
     @WithMockUser(roles = "USER")

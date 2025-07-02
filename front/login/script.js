@@ -105,6 +105,58 @@ const adminData = [
     }
 }
 
+async function handleSignUp(event) {
+  event.preventDefault();
+
+  const nameInput = document.querySelector(".sign-up input[placeholder='Name']").value;
+  const surnameInput = document.querySelector(".sign-up input[placeholder='Surname']").value;
+  const emailInput = document.querySelector(".sign-up input[type='email']").value;
+  const passwordInput = document.querySelector(".sign-up input[type='password']").value;
+
+  console.log(nameInput);
+  console.log(emailInput);
+  console.log(surnameInput);
+
+  try {
+    const response = await fetch("http://localhost:8080/api/user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name: nameInput, surname: surnameInput, login: emailInput, password: passwordInput })
+    });
+
+    if (!response.ok) {
+      throw new Error(`SignUp failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const token = data.token;
+
+    console.log("JWT Token:", token);
+
+    // Декодируем JWT
+    const decodedToken = parseJwt(token);
+
+    console.log("Decoded Token:", decodedToken);
+
+    // Сохраняем данные в localStorage
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("userLogin", decodedToken.sub);
+    localStorage.setItem("userRole", decodedToken.role);
+
+    // Перенаправление на личный кабинет
+    if (decodedToken.role === "ROLE_ADMIN") {
+      window.location.href = "admin_active_reservations.html";
+    } else {
+      window.location.href = "my_profile.html";
+    }
+
+  } catch (error) {
+    console.error("SignUp Error:", error);
+  }
+}
+
 // Функция декодирования JWT
 function parseJwt(token) {
     try {
@@ -125,3 +177,4 @@ function parseJwt(token) {
 
   
   document.querySelector(".sign-in form").addEventListener("submit", handleLogin);
+  document.querySelector(".sign-up form").addEventListener("submit", handleSignUp);

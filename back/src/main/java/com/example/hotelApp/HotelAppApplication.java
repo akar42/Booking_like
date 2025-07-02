@@ -8,7 +8,6 @@ public class HotelAppApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(HotelAppApplication.class, args);
-		System.out.println("Fuuuuck yeeeaaaaaahh");
 	}
 
 }

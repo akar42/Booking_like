@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room options</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-font-awesome"></i>
+      <a href="index.html">BooQueen</a>
+    </div>
+  </nav>
+  
+  <button id="editRoomBtn">Edit room</button>
+  <button id="deleteRoomBtn">Delete room</button>
+  <button id="addRoomBtn">Add room</button>
+
+  
+  <div id="formSection" class="form-section hidden">
+    <h3>Room Details</h3>
+    <form id="roomForm">
+      <div>
+        <label for="reservation_id">Reservation ID:</label>
+        <input type="text" id="reservation_id" name="reservation_id">
+      </div>
+      <div>
+        <label for="room_id">Room ID:</label>
+        <input type="text" id="room_id" name="room_id">
+      </div>
+      <div>
+        <label for="room_number">Room Number:</label>
+        <input type="text" id="room_number" name="room_number">
+      </div>
+      <div>
+        <label for="room_type">Room Type:</label>
+        <input type="text" id="room_type" name="room_type">
+      </div>
+      <div>
+        <label for="price">Price:</label>
+        <input type="text" id="price" name="price">
+      </div>
+      <div>
+        <label for="guest_number">Guest Number:</label>
+        <input type="text" id="guest_number" name="guest_number">
+      </div>
+      <div>
+        <label for="floor_number">Floor Number:</label>
+        <input type="text" id="floor_number" name="floor_number">
+      </div>
+      <div>
+        <label for="facilities">Facilities:</label>
+        <input type="text" id="facilities" name="facilities">
+      </div>
+      <div class="form-buttons">
+        <button type="submit">Submit</button>
+        <button type="button" id="closeForm">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

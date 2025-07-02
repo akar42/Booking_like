@@ -1,0 +1,182 @@
+:root {
+    /**
+     * colors
+     */
+    --united-nations-blue: hsl(214, 56%, 58%);
+    --bright-navy-blue: hsl(214, 57%, 51%);
+    --spanish-gray: hsl(0, 0%, 60%);
+    --black-coral: hsl(225, 8%, 42%);
+    --oxford-blue: hsl(208, 97%, 12%);
+    --yale-blue: hsl(214, 72%, 33%);
+    --blue-ncs: hsl(197, 100%, 36%);
+    --gunmetal: hsl(206, 34%, 20%);
+    --gainsboro: hsl(0, 0%, 88%);
+    --cultured: hsl(0, 0%, 98%);
+    --white: hsl(0, 0%, 100%);
+    --black: hsl(0, 0%, 0%);
+    --onyx: hsl(0, 0%, 25%);
+    --jet: hsl(0, 0%, 20%);
+  
+    /**
+     * typography
+     */
+    --ff-poppins: "Poppins", sans-serif;
+    --ff-montserrat: "Montserrat", sans-serif;
+  
+    --fs-1: calc(20px + 3.5vw);
+    --fs-2: calc(18px + 1.6vw);
+    --fs-3: calc(16px + 0.45vw);
+    --fs-4: 15px;
+    --fs-5: 14px;
+    --fs-6: 13px;
+    --fs-7: 12px;
+    --fs-8: 11px;
+  
+    --fw-500: 500;
+    --fw-600: 600;
+    --fw-700: 700;
+    --fw-800: 800;
+  
+    /**
+     * transition
+     */
+    --transition: 0.25s ease-in-out;
+  
+    /**
+     * spacing
+     */
+    --section-padding: 60px;
+  
+    /**
+     * border-radius
+     */
+    --radius-15: 15px;
+    --radius-25: 25px;
+  }
+  
+  .container { 
+    padding-inline: 15px; 
+  }
+  
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #010101;
+    font-family: "Ubuntu", sans-serif;
+    background-image: url("admin.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  a,
+  img,
+  span,
+  input,
+  label,
+  button,
+  ion-icon {
+    display: block;
+  }
+  
+  input {
+    width: 100%;
+  }
+  
+  ion-icon {
+    pointer-events: none;
+  }
+  
+  a,
+  button {
+    all: unset;
+    cursor: pointer;
+  }
+  
+  /* Stylizacja przycisków głównych */
+  #editRoomBtn, 
+  #deleteRoomBtn, 
+  #addRoomBtn {
+    background-color: var(--bright-navy-blue);
+    color: var(--white);
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: var(--radius-15);
+    font-size: var(--fs-3);
+    transition: background-color var(--transition);
+  }
+  
+  #editRoomBtn:hover, 
+  #deleteRoomBtn:hover, 
+  #addRoomBtn:hover {
+    background-color: var(--blue-ncs);
+  }
+  
+  /* Stylizacja sekcji formularza */
+  .form-section {
+    background-color: var(--cultured);
+    border-radius: var(--radius-15);
+    padding: 20px;
+    margin-top: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .form-section h3 {
+    margin-top: 0;
+    font-family: var(--ff-montserrat);
+    color: var(--oxford-blue);
+    text-align: center;
+  }
+  
+  label {
+    display: inline-block;
+    width: 120px;
+    margin-top: 10px;
+    font-size: var(--fs-5);
+    color: var(--black-coral);
+  }
+  
+  input {
+    padding: 5px;
+    width: calc(100% - 130px);
+    margin-top: 10px;
+    border: 1px solid var(--gainsboro);
+    border-radius: var(--radius-15);
+  }
+  
+  .form-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .form-buttons button {
+    background-color: var(--united-nations-blue);
+    color: var(--white);
+    padding: 8px 16px;
+    border-radius: var(--radius-15);
+    font-size: var(--fs-5);
+    transition: background-color var(--transition);
+  }
+  
+  .form-buttons button:hover {
+    background-color: var(--spanish-gray);
+  }
+  

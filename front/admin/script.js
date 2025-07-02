@@ -118,21 +118,44 @@ function populateAdminReservations(adminReservations) {
         const reservationBlock = document.createElement("div");
         reservationBlock.classList.add("reservation-block");
 
+        // Формируем список комнат внутри бронирования
+        let roomsInfo = "";
+        if (reservation.rooms && reservation.rooms.length > 0) {
+            roomsInfo = reservation.rooms.map(room => `
+                <div class="room-info">
+                    <p><strong>Room ID:</strong> ${room.roomId}</p>
+                    <p><strong>Room Number:</strong> ${room.roomNumber}</p>
+                    <p><strong>Type:</strong> ${room.roomType}</p>
+                    <p><strong>Price:</strong> ${room.price} $</p>
+                    <p><strong>Guests:</strong> ${room.guestNumber}</p>
+                    <p><strong>Floor:</strong> ${room.floorNumber}</p>
+                    <p><strong>Facilities:</strong> ${room.facilities}</p>
+                </div>
+            `).join("");
+        } else {
+            roomsInfo = "<p>No rooms assigned.</p>";
+        }
+
         reservationBlock.innerHTML = `
             <div class="reservation">
                 <p><strong>Reservation ID:</strong> ${reservation.reservationId}</p>
-                <p><strong>Room ID:</strong> ${reservation.roomId}</p>
-                <p><strong>Total Cost:</strong> ${reservation.totalCost}</p>
+                <p><strong>User ID:</strong> ${reservation.userId}</p>
+                <p><strong>Total Cost:</strong> ${reservation.totalCost} $</p>
                 <p><strong>Start Date:</strong> ${reservation.startDate}</p>
                 <p><strong>End Date:</strong> ${reservation.endDate}</p>
                 <p><strong>Status:</strong> ${reservation.status}</p>
-                <p><strong>Admin ID:</strong> ${reservation.adminId}</p>
+                <p><strong>Admin ID:</strong> ${reservation.adminId || "Not assigned"}</p>
+                <div class="rooms-container">
+                    <h4>Rooms:</h4>
+                    ${roomsInfo}
+                </div>
                 <div class="buttons">
                   <button class="button" id="accept-${reservation.reservationId}">Accept reservation</button>
                   <button class="button" id="cancel-${reservation.reservationId}">Cancel reservation</button>
                 </div>
             </div>
         `;
+
         dataContainer.appendChild(reservationBlock);
 
         document.getElementById(`accept-${reservation.reservationId}`).addEventListener('click', function () {
